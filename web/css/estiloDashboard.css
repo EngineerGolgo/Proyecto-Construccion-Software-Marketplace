@@ -1,0 +1,261 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 19 jun 2025, 8:35:32 a. m.
+    Author     : User
+*/
+
+ * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header .saludo {
+            font-weight: normal;
+            font-size: 18px;
+            color: #cde1f9;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #90caf9;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+            padding-top: 60px; 
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #004080;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.15);
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 20px;
+            font-weight: 700;
+            padding-left: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #28a745;
+        }
+        .categoria-item {
+            padding: 12px 20px;
+            display: block;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: background-color 0.2s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+        .categoria-item:hover {
+            background-color: #0a4d94;
+        }
+        .categoria-item.active {
+            background-color: #0a4d94;
+            border-left-color: #28a745;
+            font-weight: 700;
+        }
+        .btn-publicar-sidebar {
+            background-color: #28a745;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 12px 0;
+            margin: 0 20px 25px 20px;
+            border-radius: 30px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-publicar-sidebar:hover {
+            background-color: #218838;
+        }
+        main.content {
+            margin-left: 220px;
+            padding: 30px 40px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            background-color: #f0f2f5;
+            flex: 1;
+        }
+        main.content h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 700;
+        }
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .producto-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .producto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        .producto-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .producto-card h3 {
+            margin: 12px 0 5px;
+            font-weight: 700;
+            color: #222;
+        }
+        .producto-card p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 14px;
+            flex-grow: 1;
+        }
+        .producto-card strong {
+            color: #333;
+        }
+        .acciones {
+            margin-top: 10px;
+        }
+        .acciones a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+        }
+        .acciones a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 14px;
+            color: #666;
+            background-color: #f0f2f5;
+            position: fixed;
+            bottom: 0;
+            left: 220px;
+            right: 0;
+            border-top: 1px solid #ccc;
+            
+        }
+        
+        .producto-card {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+        }
+        .producto-card .acciones a {
+    color: #007bff;
+    margin-right: 10px;
+    text-decoration: none;
+        }
+        
+        
+        #carrito-panel {
+            position: fixed;
+            top: 60px;
+            right: -350px;
+            width: 300px;
+            height: calc(100% - 60px);
+            background-color: #fff;
+            border-left: 2px solid #007bff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 1001;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #carrito-panel.mostrar {
+            right: 0;
+        }
+
+        #toggleCarrito {
+            position: fixed;
+            top: 65px;
+            right: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1002;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #carrito-panel h2 {
+            margin-top: 0;
+        }
+
+        #carrito-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        #carrito-panel li {
+            border-bottom: 1px solid #ddd;
+            padding: 8px 0;
+        }
+
+        #carrito-panel form button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+      
