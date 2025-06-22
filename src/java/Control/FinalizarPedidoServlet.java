@@ -7,7 +7,7 @@ import jakarta.servlet.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.List;
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 
 @WebServlet("/FinalizarPedidoServlet")
 public class FinalizarPedidoServlet extends HttpServlet {

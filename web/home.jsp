@@ -24,7 +24,7 @@
 
         <!-- Formulario de Inicio de Sesión -->
         <div class="container-form">
-            <form class="sign-in" action="LoginServlet" method="post">
+            <form class="sign-in" action="/MarketplaceServicios/LoginServlet" method="post">
                 <h2>Iniciar Sesión</h2>
                 <div class="social-network">
                     <ion-icon name="logo-facebook"></ion-icon>
@@ -46,7 +46,7 @@
 
         <!-- Formulario de Registro -->
         <div class="container-form">
-            <form class="sign-up" action="RegistroServlet" method="post">
+            <form class="sign-up" action="/MarketplaceServicios/RegistroServlet" method="post">
                 <h2>Registrarse</h2>
                 <div class="social-network">
                     <ion-icon name="logo-facebook"></ion-icon>

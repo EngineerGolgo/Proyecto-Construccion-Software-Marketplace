@@ -1,5 +1,5 @@
 <%@page import="java.util.List"%>
-<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.io.*, java.sql.*, Marketplace.ConexionDB" %>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.io.*, java.sql.*, Datos.ConexionDB" %>
 <%
     HttpSession sesion = request.getSession(false);
     String nombreUsuario = null;

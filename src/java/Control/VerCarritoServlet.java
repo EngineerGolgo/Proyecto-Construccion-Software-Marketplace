@@ -1,6 +1,6 @@
 package Control;
 
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;

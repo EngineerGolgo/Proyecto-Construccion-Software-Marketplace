@@ -4,7 +4,7 @@ import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.sql.*;
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 
 public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

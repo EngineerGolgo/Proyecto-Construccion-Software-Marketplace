@@ -5,7 +5,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.MultipartConfig;
 import java.io.*;
 import java.sql.*;
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 
 @MultipartConfig
 public class EditarProductoServlet extends HttpServlet {

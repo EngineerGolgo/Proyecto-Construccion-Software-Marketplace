@@ -5,7 +5,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.*;
 import java.io.IOException;
 import java.sql.*;
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 
 @WebServlet("/AgregarComentarioServlet")
 public class AgregarComentarioServlet extends HttpServlet {

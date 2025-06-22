@@ -4,7 +4,7 @@
     Author     : User
 --%>
 
-<%@ page import="java.sql.*,Marketplace.ConexionDB,jakarta.servlet.http.*,java.util.*" %>
+<%@ page import="java.sql.*,Datos.ConexionDB,jakarta.servlet.http.*,java.util.*" %>
 <%
     String idProducto = request.getParameter("id");
     HttpSession sesion = request.getSession(false);

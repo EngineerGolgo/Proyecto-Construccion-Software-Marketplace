@@ -4,7 +4,7 @@
     Author     : User
 --%>
 
-<%@ page import="java.sql.*, Marketplace.ConexionDB" %>
+<%@ page import="java.sql.*, Datos.ConexionDB" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%
     int productoId = Integer.parseInt(request.getParameter("id"));
