@@ -1,4 +1,4 @@
-<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.sql.*,Marketplace.ConexionDB" %>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.sql.*,Datos.ConexionDB" %>
 <%
     HttpSession sesion = request.getSession(false);
     String nombreUsuario = (String) sesion.getAttribute("nombreUsuario");

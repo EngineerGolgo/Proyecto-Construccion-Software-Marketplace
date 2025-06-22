@@ -1,8 +1,10 @@
+package Control;
+
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
-import Marketplace.ConexionDB;
+import Datos.ConexionDB;
 
 public class EliminarProductoServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

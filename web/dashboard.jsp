@@ -1,5 +1,5 @@
 <%@page import="java.util.List"%>
-<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.io.*, java.sql.*, Marketplace.ConexionDB" %>
+<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.io.*, java.sql.*, Datos.ConexionDB" %>
 <%
     HttpSession sesion = request.getSession(false);
     String nombreUsuario = null;
@@ -37,29 +37,46 @@
 <div id="carrito-panel">
     <h2>Mi Carrito</h2>
     <ul>
-        <%
-            List<String> carrito = (List<String>) sesion.getAttribute("carrito");
-            if (carrito != null && !carrito.isEmpty()) {
-                for (int i = 0; i < carrito.size(); i++) {
-                    String item = carrito.get(i);
-        %>
-            <li>
-                <%= item %>
-                <form action="EliminarDelCarritoServlet" method="post" style="display:inline;">
-                    <input type="hidden" name="index" value="<%= i %>">
-                    <button type="submit">Eliminar</button>
-                </form>
-            </li>
-        <%
-                }
-            } else {
-        %>
-            <li>El carrito está vacío.</li>
-        <%
+<%
+    List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
+    if (carrito != null && !carrito.isEmpty()) {
+        Connection conn = ConexionDB.obtenerConexion();
+        for (int i = 0; i < carrito.size(); i++) {
+            int idProducto = carrito.get(i);
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos1 WHERE id = ?");
+            stmt.setInt(1, idProducto);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+%>
+    <li>
+        <strong><%= rs.getString("nombre") %></strong> - $<%= rs.getDouble("precio") %>
+        <form action="EliminarDelCarritoServlet" method="post" style="display:inline;">
+            <input type="hidden" name="index" value="<%= i %>">
+            <button type="submit">Eliminar</button>
+        </form>
+    </li>
+<%
             }
-        %>
-    </ul>
+        }
+        conn.close();
+    } else {
+%>
+    <li>El carrito está vacío.</li>
+<%
+    }
+%>
+</ul>
+<% if (carrito != null && !carrito.isEmpty()) { %>
+    <form action="FinalizarPedidoServlet" method="post">
+        <button type="submit" class="btn btn-success">Finalizar Pedido</button>
+    </form>
+<% } %>
+
 </div>
+    
+    <% if (request.getParameter("pedido") != null) { %>
+    <p style="color: green; font-weight: bold;">¡Pedido realizado con éxito!</p>
+<% } %>
     
 
 <header class="header">
@@ -120,7 +137,7 @@
                 <p><strong>Publicado por:</strong> <%= usuarioProducto %></p>
 
                 <form action="AgregarAlCarritoServlet" method="post" onClick="event.stopPropagation();" style="margin-top:10px;">
-    <input type="hidden" name="producto" value="<%= nombreProducto %>" />
+    <input type="hidden" name="productoId" value="<%= idProducto %>" />
     <button type="submit" style="background-color:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Agregar al carrito</button>
 </form>
 

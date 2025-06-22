@@ -1,3 +1,5 @@
+package Control;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
@@ -15,8 +17,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author User
  */
-@WebServlet(urlPatterns = {"/PublicarMensajeServlet"})
-public class PublicarMensajeServlet extends HttpServlet {
+@WebServlet(urlPatterns = {"/PerfilServlet"})
+public class PerfilServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,10 +37,10 @@ public class PublicarMensajeServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet PublicarMensajeServlet</title>");
+            out.println("<title>Servlet PerfilServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet PublicarMensajeServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet PerfilServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
