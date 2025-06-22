@@ -26,7 +26,6 @@ Sigue estos pasos para configurar el proyecto localmente:
     git clone [https://github.com/EngineerGolgo/Proyecto](https://github.com/EngineerGolgo/Proyecto)
     cd LocalMarket
     ```
-    *(Reemplaza `tu-usuario/LocalMarket.git` con la URL real de tu repositorio)*
 
 2.  **Configura la base de datos MySQL:**
     * Crea una nueva base de datos llamada `localmarket_db` (o el nombre que prefieras).
