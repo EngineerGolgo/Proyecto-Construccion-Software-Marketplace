@@ -31,45 +31,17 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-
-        .detalle-container img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .detalle-container h2 {
-            margin-top: 20px;
-            font-size: 28px;
-        }
-
-        .detalle-container p {
-            margin: 10px 0;
-            font-size: 16px;
-        }
-
-        .comentario-box {
-            border-bottom: 1px solid #ccc;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-        }
-
+        .detalle-container img { width: 100%; height: 300px; object-fit: cover; border-radius: 8px; }
+        .comentario-box { border-bottom: 1px solid #ccc; margin-bottom: 15px; padding-bottom: 10px; }
+        .comentario-box p { margin: 6px 0; }
         .formulario-comentario textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;
         }
-
         .formulario-comentario select, .formulario-comentario button {
-            margin-top: 5px;
+            margin-top: 10px;
         }
-
         .rating-star {
-            color: #FFD700;
+            color: #FFD700; font-size: 16px;
         }
     </style>
 </head>
@@ -96,26 +68,20 @@
                 ResultSet rs = stmt.executeQuery();
 
                 if (rs.next()) {
-                    String nombre = rs.getString("nombre");
-                    String descripcion = rs.getString("descripcion");
-                    String categoria = rs.getString("categoria");
-                    double precio = rs.getDouble("precio");
-                    String imagen = rs.getString("imagen");
-                    String vendedor = rs.getString("vendedor");
         %>
-        <img src="<%= imagen %>" alt="Imagen del producto">
-        <h2><%= nombre %></h2>
-        <p><strong>Descripción:</strong> <%= descripcion %></p>
-        <p><strong>Categoría:</strong> <%= categoria %></p>
-        <p><strong>Precio:</strong> $<%= precio %></p>
-        <p><strong>Vendedor:</strong> <%= vendedor %></p>
+        <img src="<%= rs.getString("imagen") %>" alt="Imagen del producto">
+        <h2><%= rs.getString("nombre") %></h2>
+        <p><strong>Descripción:</strong> <%= rs.getString("descripcion") %></p>
+        <p><strong>Categoría:</strong> <%= rs.getString("categoria") %></p>
+        <p><strong>Precio:</strong> $<%= rs.getDouble("precio") %></p>
+        <p><strong>Vendedor:</strong> <%= rs.getString("vendedor") %></p>
 
         <hr>
-        <h3>Comentarios</h3>
-
-        <%-- Mostrar comentarios --%>
+        <h3>Comentarios y Reseñas</h3>
         <%
-            PreparedStatement comStmt = conn.prepareStatement("SELECT c.comentario, c.fecha, c.puntuacion, u.nombre FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id WHERE c.producto_id = ? ORDER BY c.fecha DESC");
+            PreparedStatement comStmt = conn.prepareStatement(
+                "SELECT c.comentario, c.fecha, c.puntuacion, u.nombre FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id WHERE c.producto_id = ? ORDER BY c.fecha DESC"
+            );
             comStmt.setInt(1, Integer.parseInt(idProducto));
             ResultSet rsCom = comStmt.executeQuery();
 
@@ -123,18 +89,16 @@
                 int puntuacion = rsCom.getInt("puntuacion");
         %>
         <div class="comentario-box">
-            <p><strong><%= rsCom.getString("nombre") %></strong>:</p>
+            <p><strong><%= rsCom.getString("nombre") %></strong></p>
             <p><%= rsCom.getString("comentario") %></p>
             <p>Puntuación:
                 <% for (int i = 0; i < puntuacion; i++) { %>
-                    <span class="rating-star">?</span>
+                    <span class="rating-star">&#9733;</span>
                 <% } %>
             </p>
             <small><%= rsCom.getTimestamp("fecha") %></small>
         </div>
-        <%
-            }
-        %>
+        <% } %>
 
         <% if (nombreUsuario != null) { %>
         <div class="formulario-comentario">
@@ -144,17 +108,15 @@
                 <label for="comentario">Comentario:</label><br>
                 <textarea name="comentario" rows="4" required></textarea><br>
 
-                <label for="puntuacion">Puntuación (1 a 5):</label>
+                <label for="puntuacion">Puntuación:</label>
                 <select name="puntuacion" required>
                     <option value="">Selecciona</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
+                    <% for (int i = 1; i <= 5; i++) { %>
+                        <option value="<%= i %>"><%= i %></option>
+                    <% } %>
                 </select><br>
 
-                <button type="submit">Enviar comentario</button>
+                <button type="submit">Enviar</button>
             </form>
         </div>
         <% } else { %>
