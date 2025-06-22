@@ -3,18 +3,21 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.util.*;
-
 @WebServlet("/AgregarAlCarritoServlet")
 public class AgregarAlCarritoServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String producto = request.getParameter("producto");
-        HttpSession session = request.getSession();
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        List<String> carrito = (List<String>) session.getAttribute("carrito");
+        int productoId = Integer.parseInt(request.getParameter("productoId"));
+
+        HttpSession session = request.getSession();
+        List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
+
         if (carrito == null) {
-            carrito = new ArrayList<>();
+            carrito = new java.util.ArrayList<>();
         }
-        carrito.add(producto);
+
+        carrito.add(productoId);
         session.setAttribute("carrito", carrito);
 
         response.sendRedirect("dashboard.jsp");

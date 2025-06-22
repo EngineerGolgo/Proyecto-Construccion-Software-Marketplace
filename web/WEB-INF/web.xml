@@ -56,5 +56,4 @@
         <url-pattern>/EliminarProductoServlet</url-pattern>
     </servlet-mapping>
     
-
 </web-app>
