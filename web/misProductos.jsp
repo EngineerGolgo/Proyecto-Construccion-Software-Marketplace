@@ -24,8 +24,6 @@
     <nav class="navbar">
         <a href="dashboard.jsp">Inicio</a>
         <a href="perfil.jsp">Perfil</a>
-        <a href="foro.jsp">Publicar Mensaje</a>
-        <a href="mensajes.jsp">Mensajes</a>
         <a href="logout.jsp">Cerrar Sesión</a>
     </nav>
 </header>

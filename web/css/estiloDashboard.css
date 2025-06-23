@@ -201,6 +201,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
         }
         
         
+        
         #carrito-panel {
             position: fixed;
             top: 60px;
@@ -258,4 +259,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
             border-radius: 5px;
             cursor: pointer;
         }
+        
+     
       

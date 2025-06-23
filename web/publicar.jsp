@@ -8,137 +8,143 @@
     }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Publicar Producto</title>
-    <link rel="stylesheet" href="css/estilos.css">
+    <%-- Solo se referencia el CSS externo, que ya contiene el estilo del header --%>
+    <link rel="stylesheet" href="css/estiloDashboard.css" /> 
     <style>
-        body {
-            background: #f4f6f9;
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .form-wrapper {
+        .form-container {
             max-width: 600px;
-            margin: 60px auto;
-            background: white;
+            margin: 120px auto;
             padding: 30px;
+            background: #ffffff;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .form-wrapper h2 {
+        .form-container h2 {
             text-align: center;
             margin-bottom: 25px;
             color: #333;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .form-container form {
+            display: flex;
+            flex-direction: column;
         }
 
-        .form-group label {
-            display: block;
+        .form-container label {
+            margin: 10px 0 5px;
             font-weight: 600;
-            margin-bottom: 8px;
         }
 
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px 12px;
+        .form-container input[type="text"],
+        .form-container input[type="number"],
+        .form-container textarea,
+        .form-container select {
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
         }
 
-        .form-group textarea {
+        .form-container textarea {
             resize: vertical;
-            min-height: 100px;
         }
 
-        .form-group input[type="file"] {
-            padding: 6px;
+        .form-container input[type="file"] {
+            margin-top: 10px;
         }
 
-        .form-group input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            font-size: 16px;
+        .form-container input[type="submit"] {
+            margin-top: 25px;
             padding: 12px;
+            background-color: #3AB397;
+            color: #fff;
+            font-weight: bold;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background-color 0.3s ease;
         }
 
-        .form-group input[type="submit"]:hover {
-            background-color: #0056b3;
+        .form-container input[type="submit"]:hover {
+            background-color: #339d84;
         }
 
+        body {
+            padding-top: 60px; 
+            margin: 0;
+        }
+        
         .volver {
-            display: block;
             margin-top: 20px;
             text-align: center;
         }
 
         .volver a {
             text-decoration: none;
-            color: #007bff;
+            color: #3AB397;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .volver a:hover {
+            color: #339d84;
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="form-wrapper">
-        <h2>Publicar Producto</h2>
-        <form action="PublicarProductoServlet" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="nombre">Nombre del producto</label>
-                <input type="text" name="nombre" id="nombre" required>
-            </div>
+<header class="header">
+    <div class="logo">Marketplace</div>
+    <nav class="navbar">
+        <a href="dashboard.jsp">Inicio</a>
+        <a href="perfil.jsp">Perfil</a>
+        <a href="foro.jsp">Publicar Mensaje</a>
+        <a href="misProductos.jsp">Mis Productos</a>
+        <a href="mensajes.jsp">Mensajes</a>
+        <a href="logout.jsp">Cerrar Sesión</a>
+    </nav>
+</header>
 
-            <div class="form-group">
-                <label for="descripcion">Descripción</label>
-                <textarea name="descripcion" id="descripcion" required></textarea>
-            </div>
+<div class="form-container">
+    <h2>Publicar Producto</h2>
+    <form action="PublicarProductoServlet" method="post" enctype="multipart/form-data">
+        <label for="nombre">Nombre del producto</label>
+        <input type="text" name="nombre" id="nombre" required>
 
-            <div class="form-group">
-                <label for="categoria">Categoría</label>
-                <select name="categoria" id="categoria">
-                    <option value="Tecnología">Tecnología</option>
-                    <option value="Hogar">Hogar</option>
-                    <option value="Moda">Moda</option>
-                    <option value="Otros">Otros</option>
-                </select>
-            </div>
+        <label for="descripcion">Descripción</label>
+        <textarea name="descripcion" id="descripcion" rows="4" required></textarea>
 
-            <div class="form-group">
-                <label for="precio">Precio ($)</label>
-                <input type="number" step="0.01" name="precio" id="precio" required>
-            </div>
+        <label for="categoria">Categoría</label>
+        <select name="categoria" id="categoria">
+            <option value="Tecnología">Tecnología</option>
+            <option value="Hogar">Hogar</option>
+            <option value="Moda">Moda</option>
+            <option value="Otros">Otros</option>
+        </select>
 
-            <div class="form-group">
-                <label for="imagen">Imagen del producto</label>
-                <input type="file" name="imagen" id="imagen" accept="image/*" required>
-            </div>
+        <label for="precio">Precio ($)</label>
+        <input type="number" step="0.01" name="precio" id="precio" required>
 
-            <div class="form-group">
-                <input type="submit" value="Publicar Producto">
-            </div>
-        </form>
+        <label for="imagen">Imagen del producto</label>
+        <input type="file" name="imagen" id="imagen" accept="image/*" required>
 
-        <div class="volver">
-            <a href="dashboard.jsp">&larr; Volver al inicio</a>
-        </div>
+        <input type="submit" value="Publicar Producto">
+    </form>
+
+    <div class="volver">
+        <a href="dashboard.jsp">&larr; Volver al inicio</a>
     </div>
+</div>
+
+<footer class="footer">
+    &copy; 2025 Lopez Ochoa. Todos los derechos reservados a Anthony Lopez.
+</footer>
 
 </body>
 </html>
