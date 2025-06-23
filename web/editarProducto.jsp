@@ -99,8 +99,8 @@
     <div class="logo">Marketplace</div>
     <nav class="navbar">
         <a href="dashboard.jsp">Inicio</a>
-        <a href="perfil.jsp">Perfil</a>
         <a href="misProductos.jsp">Mis Productos</a>
+        <a href="perfil.jsp">Perfil</a>
         <a href="logout.jsp">Cerrar Sesión</a>
     </nav>
 </header>

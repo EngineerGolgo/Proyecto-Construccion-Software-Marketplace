@@ -1,18 +1,26 @@
 package Control;
 
+import Modelo.Usuario;    
+import Modelo.Producto;     
+import Modelo.Pedido;       
+import Modelo.DetallePedido; 
+import DAO.UsuarioDAO;      
+import DAO.ProductoDAO;     
+import DAO.PedidoDAO;       
+import DAO.DAOException;    
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import jakarta.servlet.*;
 import java.io.IOException;
-import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import Datos.ConexionDB;
 
 @WebServlet("/FinalizarPedidoServlet")
 public class FinalizarPedidoServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("nombreUsuario") == null) {
@@ -22,64 +30,71 @@ public class FinalizarPedidoServlet extends HttpServlet {
 
         String nombreUsuario = (String) session.getAttribute("nombreUsuario");
 
-        try (Connection conn = ConexionDB.obtenerConexion()) {
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        ProductoDAO productoDAO = new ProductoDAO();
+        PedidoDAO pedidoDAO = new PedidoDAO();
 
-            // Obtener ID del usuario
-            PreparedStatement userStmt = conn.prepareStatement("SELECT id FROM usuarios WHERE nombre = ?");
-            userStmt.setString(1, nombreUsuario);
-            ResultSet rsUser = userStmt.executeQuery();
-
-            if (!rsUser.next()) {
-                response.sendRedirect("dashboard.jsp?error=usuario");
+        try {
+            Usuario usuario = usuarioDAO.obtenerPorNombre(nombreUsuario);
+            if (usuario == null) {
+                response.sendRedirect("dashboard.jsp?error=usuario_no_encontrado_pedido");
                 return;
             }
-            int usuarioId = rsUser.getInt("id");
+            int usuarioId = usuario.getId();
 
-            List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
-            if (carrito != null && !carrito.isEmpty()) {
-                double total = 0;
-                PreparedStatement precioStmt = conn.prepareStatement("SELECT precio FROM productos1 WHERE id = ?");
-                for (int productoId : carrito) {
-                    precioStmt.setInt(1, productoId);
-                    ResultSet rs = precioStmt.executeQuery();
-                    if (rs.next()) {
-                        total += rs.getDouble("precio");
-                    }
-                }
+            List<Integer> carritoIds = (List<Integer>) session.getAttribute("carrito");
+            if (carritoIds == null || carritoIds.isEmpty()) {
+                response.sendRedirect("dashboard.jsp?error=carrito_vacio");
+                return;
+            }
 
-                PreparedStatement pedidoStmt = conn.prepareStatement(
-                    "INSERT INTO pedidos (usuario_id, fecha, total) VALUES (?, NOW(), ?)",
-                    Statement.RETURN_GENERATED_KEYS
-                );
-                pedidoStmt.setInt(1, usuarioId);
-                pedidoStmt.setDouble(2, total);
-                pedidoStmt.executeUpdate();
+            double total = 0;
+            List<Producto> productosDelCarrito = new ArrayList<>();
 
-                ResultSet generatedKeys = pedidoStmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    int pedidoId = generatedKeys.getInt(1);
-
-                    PreparedStatement detalleStmt = conn.prepareStatement(
-                        "INSERT INTO detalle_pedido (pedido_id, producto_id) VALUES (?, ?)"
-                    );
-
-                    for (int productoId : carrito) {
-                        detalleStmt.setInt(1, pedidoId);
-                        detalleStmt.setInt(2, productoId);
-                        detalleStmt.addBatch();
-                    }
-                    detalleStmt.executeBatch();
-
-                    session.removeAttribute("carrito");
-
-                    response.sendRedirect("dashboard.jsp?pedido=exito");
-                    return;
+            for (int productoId : carritoIds) {
+                Producto producto = productoDAO.obtenerPorId(productoId);
+                if (producto != null) {
+                    total += producto.getPrecio();
+                    productosDelCarrito.add(producto); 
+                } else {
+                    System.err.println("Advertencia: Producto con ID " + productoId + " en el carrito no encontrado en la base de datos.");
                 }
             }
 
-        } catch (Exception e) {
+            if (total <= 0 || productosDelCarrito.isEmpty()) {
+                 response.sendRedirect("dashboard.jsp?error=carrito_invalido");
+                 return;
+            }
+
+            Pedido nuevoPedido = new Pedido(usuarioId, total);
+            int pedidoId = pedidoDAO.guardarPedido(nuevoPedido); 
+
+            if (pedidoId != -1) {
+                List<DetallePedido> detallesPedido = new ArrayList<>();
+                for (Producto prod : productosDelCarrito) {
+                    detallesPedido.add(new DetallePedido(pedidoId, prod.getId()));
+                }
+                
+                pedidoDAO.guardarDetallesPedido(detallesPedido);
+
+                session.removeAttribute("carrito");
+
+                response.sendRedirect("dashboard.jsp?pedido=exito");
+                return;
+
+            } else {
+                response.sendRedirect("dashboard.jsp?error=no_se_pudo_crear_pedido");
+                return;
+            }
+
+        } catch (DAOException e) {
+            System.err.println("Error de DB en FinalizarPedidoServlet: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("dashboard.jsp?error=pedido");
+            response.sendRedirect("dashboard.jsp?error=error_db_pedido");
+        } catch (Exception e) {
+            System.err.println("Error inesperado en FinalizarPedidoServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("dashboard.jsp?error=inesperado");
         }
     }
 }

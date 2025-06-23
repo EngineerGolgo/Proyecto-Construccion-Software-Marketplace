@@ -1,64 +1,107 @@
 package Control;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import Modelo.Producto;  
+import DAO.ProductoDAO;  
+import DAO.DAOException; 
+
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
-import java.io.*;
-import java.sql.*;
-import Datos.ConexionDB;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 
-@MultipartConfig
+@WebServlet("/EditarProductoServlet")
+@MultipartConfig(fileSizeThreshold=1024*1024,   
+                 maxFileSize=1024*1024*5,       
+                 maxRequestSize=1024*1024*10)   
 public class EditarProductoServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
+        request.setCharacterEncoding("UTF-8"); 
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        int idProducto;
+        try {
+            idProducto = Integer.parseInt(request.getParameter("id"));
+        } catch (NumberFormatException e) {
+            response.sendRedirect("dashboard.jsp?error=id_producto_invalido_editar");
+            return;
+        }
+
         String nombre = request.getParameter("nombre");
         String descripcion = request.getParameter("descripcion");
         String categoria = request.getParameter("categoria");
-        double precio = Double.parseDouble(request.getParameter("precio"));
+        double precio;
+        try {
+            precio = Double.parseDouble(request.getParameter("precio"));
+        } catch (NumberFormatException e) {
+            response.sendRedirect("dashboard.jsp?error=precio_invalido_editar");
+            return;
+        }
+        
         String nuevaRutaImagen = null;
 
-        Part imagenPart = request.getPart("imagen");
-        if (imagenPart != null && imagenPart.getSize() > 0) {
-            String nombreArchivo = imagenPart.getSubmittedFileName();
-            String rutaGuardado = getServletContext().getRealPath("") + File.separator + "imagenes";
-            File directorio = new File(rutaGuardado);
-            if (!directorio.exists()) directorio.mkdir();
+        try {
+            Part imagenPart = request.getPart("imagen");
+            if (imagenPart != null && imagenPart.getSize() > 0 && imagenPart.getSubmittedFileName() != null && !imagenPart.getSubmittedFileName().isEmpty()) {
+                String nombreArchivoOriginal = imagenPart.getSubmittedFileName();
+                String extension = "";
+                int i = nombreArchivoOriginal.lastIndexOf('.');
+                if (i > 0) {
+                    extension = nombreArchivoOriginal.substring(i);
+                }
+                String nombreUnicoArchivo = System.currentTimeMillis() + "_" + (int)(Math.random() * 1000) + extension;
 
-            imagenPart.write(rutaGuardado + File.separator + nombreArchivo);
-            nuevaRutaImagen = "imagenes" + File.separator + nombreArchivo;
+                String rutaGuardadoAbsoluta = getServletContext().getRealPath("") + File.separator + "imagenes";
+                File directorio = new File(rutaGuardadoAbsoluta);
+                if (!directorio.exists()) {
+                    directorio.mkdirs();
+                }
+                
+                imagenPart.write(rutaGuardadoAbsoluta + File.separator + nombreUnicoArchivo);
+                nuevaRutaImagen = "imagenes" + File.separator + nombreUnicoArchivo; 
+            }
+        } catch (IOException | ServletException e) {
+            System.err.println("Error al procesar la subida de la imagen: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("dashboard.jsp?error=error_subida_imagen_editar");
+            return;
+        } catch (Exception e) {
+            System.err.println("Error inesperado al subir la imagen: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("dashboard.jsp?error=error_inesperado_imagen");
+            return;
         }
 
-        try (Connection conn = ConexionDB.obtenerConexion()) {
-            String sql;
-            if (nuevaRutaImagen != null) {
-                sql = "UPDATE productos1 SET nombre = ?, descripcion = ?, categoria = ?, precio = ?, imagen = ? WHERE id = ?";
+        Producto productoAActualizar = new Producto();
+        productoAActualizar.setId(idProducto);
+        productoAActualizar.setNombre(nombre);
+        productoAActualizar.setDescripcion(descripcion);
+        productoAActualizar.setCategoria(categoria);
+        productoAActualizar.setPrecio(precio);
+        productoAActualizar.setImagen(nuevaRutaImagen); 
+
+        ProductoDAO productoDAO = new ProductoDAO();
+        try {
+            boolean actualizado = productoDAO.actualizarProducto(productoAActualizar);
+
+            if (actualizado) {
+                response.sendRedirect("dashboard.jsp?editado=exito");
             } else {
-                sql = "UPDATE productos1 SET nombre = ?, descripcion = ?, categoria = ?, precio = ? WHERE id = ?";
+                response.sendRedirect("dashboard.jsp?error=producto_no_encontrado_actualizar");
             }
 
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, nombre);
-            stmt.setString(2, descripcion);
-            stmt.setString(3, categoria);
-            stmt.setDouble(4, precio);
-
-            if (nuevaRutaImagen != null) {
-                stmt.setString(5, nuevaRutaImagen);
-                stmt.setInt(6, id);
-            } else {
-                stmt.setInt(5, id);
-            }
-
-            stmt.executeUpdate();
-            response.sendRedirect("dashboard.jsp?editado=1");
-
-        } catch (Exception e) {
+        } catch (DAOException e) {
+            System.err.println("Error de base de datos al actualizar producto: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("dashboard.jsp?error=1");
+            response.sendRedirect("dashboard.jsp?error=error_db_actualizar");
+        } catch (Exception e) {
+            System.err.println("Error inesperado en EditarProductoServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("dashboard.jsp?error=inesperado_editar");
         }
     }
 }
