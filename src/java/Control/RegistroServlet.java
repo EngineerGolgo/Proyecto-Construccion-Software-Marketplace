@@ -27,7 +27,7 @@ public class RegistroServlet extends HttpServlet {
             stmt.setString(3, contrasena);
             stmt.executeUpdate();
 
-            response.sendRedirect("registro.jsp?exito=1");
+            response.sendRedirect("home.jsp?exito=1");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("registro.jsp?error=1");

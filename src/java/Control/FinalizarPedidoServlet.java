@@ -37,7 +37,6 @@ public class FinalizarPedidoServlet extends HttpServlet {
 
             List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
             if (carrito != null && !carrito.isEmpty()) {
-                // 1. Calcular total del pedido
                 double total = 0;
                 PreparedStatement precioStmt = conn.prepareStatement("SELECT precio FROM productos1 WHERE id = ?");
                 for (int productoId : carrito) {
@@ -48,7 +47,6 @@ public class FinalizarPedidoServlet extends HttpServlet {
                     }
                 }
 
-                // 2. Insertar pedido con total
                 PreparedStatement pedidoStmt = conn.prepareStatement(
                     "INSERT INTO pedidos (usuario_id, fecha, total) VALUES (?, NOW(), ?)",
                     Statement.RETURN_GENERATED_KEYS
@@ -61,7 +59,6 @@ public class FinalizarPedidoServlet extends HttpServlet {
                 if (generatedKeys.next()) {
                     int pedidoId = generatedKeys.getInt(1);
 
-                    // 3. Insertar detalles del pedido
                     PreparedStatement detalleStmt = conn.prepareStatement(
                         "INSERT INTO detalle_pedido (pedido_id, producto_id) VALUES (?, ?)"
                     );
@@ -73,7 +70,6 @@ public class FinalizarPedidoServlet extends HttpServlet {
                     }
                     detalleStmt.executeBatch();
 
-                    // 4. Limpiar carrito
                     session.removeAttribute("carrito");
 
                     response.sendRedirect("dashboard.jsp?pedido=exito");
