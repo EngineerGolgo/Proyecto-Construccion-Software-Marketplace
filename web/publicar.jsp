@@ -1,3 +1,10 @@
+<%-- 
+    Document   : publicar
+    Created on : 10 jun 2025, 11:32:02 p. m.
+    Author     : User
+--%>
+
+
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
 <%
@@ -12,7 +19,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Publicar Producto</title>
-    <%-- Solo se referencia el CSS externo, que ya contiene el estilo del header --%>
     <link rel="stylesheet" href="css/estiloDashboard.css" /> 
     <style>
         .form-container {
@@ -103,10 +109,8 @@
     <div class="logo">Marketplace</div>
     <nav class="navbar">
         <a href="dashboard.jsp">Inicio</a>
-        <a href="perfil.jsp">Perfil</a>
-        <a href="foro.jsp">Publicar Mensaje</a>
         <a href="misProductos.jsp">Mis Productos</a>
-        <a href="mensajes.jsp">Mensajes</a>
+        <a href="perfil.jsp">Perfil</a>
         <a href="logout.jsp">Cerrar Sesión</a>
     </nav>
 </header>

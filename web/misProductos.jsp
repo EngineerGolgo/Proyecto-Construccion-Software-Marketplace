@@ -1,3 +1,9 @@
+<%-- 
+    Document   : misProductos
+    Created on : 15 jun 2025, 10:37:20?p. m.
+    Author     : User
+--%>
+
 <%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.sql.*,Datos.ConexionDB" %>
 <%
     HttpSession sesion = request.getSession(false);
@@ -23,6 +29,7 @@
     <div class="logo">Marketplace</div>
     <nav class="navbar">
         <a href="dashboard.jsp">Inicio</a>
+        <a href="misProductos.jsp">Mis Productos</a>
         <a href="perfil.jsp">Perfil</a>
         <a href="logout.jsp">Cerrar Sesión</a>
     </nav>

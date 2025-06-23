@@ -1,6 +1,18 @@
+<%-- 
+    Document   : dashboard
+    Created on : 5 jun 2025, 11:33:02?p. m.
+    Author     : User
+--%>
+
+
 <%@page import="java.util.List"%>
 <%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.io.*, java.sql.*, Datos.ConexionDB" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@ page import="Modelo.Producto" %> 
+<%@ page import="DAO.ProductoDAO" %> 
+<%@ page import="DAO.DAOException" %> 
+
+
 <%
     HttpSession sesion = request.getSession(false);
     String nombreUsuario = null;
@@ -13,10 +25,9 @@
         return;
     }
 
-    // Obtener el término de búsqueda de la solicitud
     String searchTerm = request.getParameter("search");
     if (searchTerm == null) {
-        searchTerm = ""; // Si no hay término, inicializar como vacío
+        searchTerm = ""; 
     }
 %>
 
@@ -38,74 +49,69 @@
     </script>
 
     <style>
-        /* CSS ESPECÍFICO PARA EL BUSCADOR (ESTILO PÍLDORA CON LUPA A LA IZQUIERDA) */
-        /* Asegúrate de ELIMINAR CUALQUIER OTRA DEFINICIÓN de .search-bar,
-           .search-bar input, .search-bar button en estiloDashboard.css
-           para evitar conflictos. Este CSS debería ser el ÚNICO para el buscador. */
         
         .search-bar {
-            margin: 30px auto; /* Centra el buscador y le da espacio vertical */
+            margin: 30px auto; 
             display: flex;
-            align-items: center; /* Alinea verticalmente los elementos */
-            background-color: #ffffff; /* Fondo blanco */
-            border-radius: 50px; /* Bordes muy redondeados para forma de píldora */
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            max-width: 600px; /* Ancho máximo para que no sea demasiado grande */
-            padding: 8px 10px; /* Padding interno para separación de los bordes */
-            border: 1px solid #e0e0e0; /* Borde sutil, como en la imagen */
+            align-items: center;
+            background-color: #ffffff; 
+            border-radius: 50px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); 
+            max-width: 600px; 
+            padding: 8px 10px; 
+            border: 1px solid #e0e0e0; 
         }
 
         .search-bar form {
-            display: flex; /* Asegura que el formulario también sea un flex container */
-            width: 100%; /* Ocupa todo el ancho del .search-bar */
-            align-items: center; /* Alinea verticalmente los elementos dentro del formulario */
+            display: flex; 
+            width: 100%;
+            align-items: center;
         }
 
         .search-bar input[type="text"] {
-            flex-grow: 1; /* Permite que el input ocupe el espacio disponible */
-            padding: 8px 15px; /* Ajusta el padding para el texto dentro del input */
-            border: none; /* Elimina el borde por defecto del input */
-            background-color: transparent; /* Fondo transparente para que se vea el fondo de .search-bar */
+            flex-grow: 1; 
+            padding: 8px 15px;
+            border: none; 
+            background-color: transparent; 
             font-size: 1.1em;
             color: #333;
-            outline: none; /* Quita el contorno al enfocar */
-            order: 2; /* Ordena el input después del botón de lupa */
+            outline: none; 
+            order: 2; 
         }
 
         .search-bar input[type="text"]::placeholder {
-            color: #888; /* Color para el placeholder */
+            color: #888; 
         }
 
         .search-bar button[type="submit"] {
-            background-color: #007bff; /* Color azul del botón/lupa */
+            background-color: #007bff; 
             color: white;
             border: none;
-            border-radius: 50%; /* Lo hace redondo */
-            width: 40px; /* Ancho para la forma redonda */
-            height: 40px; /* Alto para la forma redonda */
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            font-size: 1.2em; /* Tamaño del ícono de lupa */
+            font-size: 1.2em; 
             transition: background-color 0.3s ease, transform 0.2s ease;
-            flex-shrink: 0; /* Evita que el botón se encoja en pantallas pequeñas */
-            margin-right: 10px; /* Pequeño espacio a la DERECHA de la lupa */
-            order: 1; /* Ordena el botón de lupa PRIMERO */
+            flex-shrink: 0; 
+            margin-right: 10px; 
+            order: 1; 
         }
 
         .search-bar button[type="submit"]:hover {
-            background-color: #0056b3; /* Tono más oscuro al pasar el ratón */
-            transform: scale(1.05); /* Pequeña animación al pasar el ratón */
+            background-color: #0056b3; 
+            transform: scale(1.05); 
         }
         
-        /* Opcional: Si quieres un margen inferior para el buscador */
         main.content h1 {
-            margin-bottom: 20px; /* Margen debajo de "Productos" */
+            margin-bottom: 20px; 
         }
         
         .search-bar {
-            margin-bottom: 40px; /* Más espacio entre el buscador y el grid de productos */
+            margin-bottom: 40px; 
         }
 
     </style>
@@ -118,30 +124,37 @@
     <h2>Mi Carrito</h2>
     <ul>
 <%
-    List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
-    if (carrito != null && !carrito.isEmpty()) {
-        try (Connection conn = ConexionDB.obtenerConexion()) { // Usa try-with-resources para cerrar la conexión automáticamente
-            for (int i = 0; i < carrito.size(); i++) {
-                int idProducto = carrito.get(i);
-                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos1 WHERE id = ?");
-                stmt.setInt(1, idProducto);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
+    List<Integer> carritoIds = (List<Integer>) session.getAttribute("carrito"); 
+    List<Producto> productosEnCarrito = new java.util.ArrayList<>(); 
+    ProductoDAO productoDAO = new ProductoDAO(); 
+
+    if (carritoIds != null && !carritoIds.isEmpty()) {
+        try {
+            for (Integer id : carritoIds) {
+                Producto producto = productoDAO.obtenerPorId(id); 
+                if (producto != null) {
+                    productosEnCarrito.add(producto);
+                }
+            }
+        } catch (DAOException e) {
+            System.err.println("Error al cargar productos del carrito en el dashboard: " + e.getMessage());
+            e.printStackTrace();
+            out.println("<li>Error al cargar productos del carrito.</li>");
+        }
+    }
+
+    if (productosEnCarrito != null && !productosEnCarrito.isEmpty()) {
+        for (int i = 0; i < productosEnCarrito.size(); i++) {
+            Producto prod = productosEnCarrito.get(i);
 %>
     <li>
-        <strong><%= rs.getString("nombre") %></strong> - $<%= rs.getDouble("precio") %>
+        <strong><%= prod.getNombre() %></strong> - $<%= prod.getPrecio() %>
         <form action="EliminarDelCarritoServlet" method="post" style="display:inline;">
             <input type="hidden" name="index" value="<%= i %>">
             <button type="submit">Eliminar</button>
         </form>
     </li>
 <%
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Manejo de errores de base de datos
-            out.println("<li>Error al cargar productos del carrito.</li>");
         }
     } else {
 %>
@@ -150,7 +163,7 @@
     }
 %>
 </ul>
-<% if (carrito != null && !carrito.isEmpty()) { %>
+<% if (carritoIds != null && !carritoIds.isEmpty()) { %> 
     <form action="FinalizarPedidoServlet" method="post">
         <button type="submit" class="btn btn-success">Finalizar Pedido</button>
     </form>
@@ -179,7 +192,6 @@
     <aside class="sidebar">
         <a href="publicar.jsp" class="btn-publicar-sidebar">+ Publicar Producto</a>
         <h2>Categorías</h2>
-        <%-- Asegúrate de que las tildes en 'Tecnología' estén bien codificadas si tu JSP usa UTF-8 --%>
         <a href="dashboard.jsp?search=<%= URLEncoder.encode(searchTerm, "UTF-8") %>" class="categoria-item <%= (request.getParameter("categoria") == null || request.getParameter("categoria").isEmpty()) ? "active" : "" %>">Todas</a>
         <a href="dashboard.jsp?categoria=Tecnología&search=<%= URLEncoder.encode(searchTerm, "UTF-8") %>" class="categoria-item <%= "Tecnología".equals(request.getParameter("categoria")) ? "active" : "" %>">Tecnología</a>
         <a href="dashboard.jsp?categoria=Hogar&search=<%= URLEncoder.encode(searchTerm, "UTF-8") %>" class="categoria-item <%= "Hogar".equals(request.getParameter("categoria")) ? "active" : "" %>">Hogar</a>
@@ -192,7 +204,7 @@
 
         <div class="search-bar">
             <form action="dashboard.jsp" method="get">
-                <button type="submit"><i class="fas fa-search"></i></button> <%-- Este es el ícono de la lupa --%>
+                <button type="submit"><i class="fas fa-search"></i></button> 
                 <input type="text" name="search" placeholder="Buscar productos..." value="<%= searchTerm %>" />
                 <input type="hidden" name="categoria" value="<%= request.getParameter("categoria") != null ? URLEncoder.encode(request.getParameter("categoria"), "UTF-8") : "" %>">
             </form>

@@ -1,43 +1,46 @@
 package Control;
 
-import Datos.ConexionDB;
+import Modelo.Producto;    
+import DAO.ProductoDAO;    
+import DAO.DAOException;   
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet("/verCarrito")
 public class VerCarritoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
-        if (carrito == null) carrito = new ArrayList<>();
-
-        List<Map<String, Object>> productos = new ArrayList<>();
-
-        try (Connection conn = ConexionDB.obtenerConexion()) {
-            for (Integer id : carrito) {
-                PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos1 WHERE id = ?");
-                stmt.setInt(1, id);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    Map<String, Object> prod = new HashMap<>();
-                    prod.put("nombre", rs.getString("nombre"));
-                    prod.put("precio", rs.getDouble("precio"));
-                    prod.put("imagen", rs.getString("imagen"));
-                    productos.add(prod);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<Integer> carritoIds = (List<Integer>) session.getAttribute("carrito");
+        if (carritoIds == null) {
+            carritoIds = new ArrayList<>(); 
         }
 
-        request.setAttribute("productosCarrito", productos);
+        List<Producto> productosEnCarrito = new ArrayList<>();
+        ProductoDAO productoDAO = new ProductoDAO(); 
+
+        try {
+            for (Integer id : carritoIds) {
+                Producto producto = productoDAO.obtenerPorId(id);
+                if (producto != null) {
+                    productosEnCarrito.add(producto);
+                }
+            }
+        } catch (DAOException e) {
+            System.err.println("Error al cargar productos del carrito desde el DAO: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("errorCarrito", "Error al cargar los detalles de los productos en el carrito.");
+        }
+
+        request.setAttribute("productosCarrito", productosEnCarrito);
+
         request.getRequestDispatcher("carritoPanel.jsp").forward(request, response);
     }
 }

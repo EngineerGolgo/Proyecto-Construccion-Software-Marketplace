@@ -1,37 +1,42 @@
 package Control;
 
-import java.io.*;
-import jakarta.servlet.*;
+import Modelo.Usuario;   
+import DAO.UsuarioDAO;     
+import DAO.DAOException;   
+
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
-import java.sql.*;
-import Datos.ConexionDB;
+import java.io.IOException;
 
 public class LoginServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         String correo = request.getParameter("correo");
         String contrasena = request.getParameter("contrasena");
 
-        try (Connection conn = ConexionDB.obtenerConexion()) {
-            String sql = "SELECT * FROM usuarios WHERE correo = ? AND contraseña = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, correo);
-            stmt.setString(2, contrasena);
-            ResultSet rs = stmt.executeQuery();
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-            if (rs.next()) {
-                String nombreUsuario = rs.getString("nombre");
+        try {
+            Usuario usuario = usuarioDAO.obtenerPorCredenciales(correo, contrasena);
+
+            if (usuario != null) {
                 HttpSession session = request.getSession();
-                session.setAttribute("nombreUsuario", nombreUsuario);
+                session.setAttribute("nombreUsuario", usuario.getNombre()); 
                 response.sendRedirect("dashboard.jsp");
             } else {
-                response.sendRedirect("login.jsp?error=1");
+                response.sendRedirect("login.jsp?error=credenciales_invalidas");
             }
 
-        } catch (Exception e) {
+        } catch (DAOException e) {
+            System.err.println("Error de base de datos en LoginServlet: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("login.jsp?error=1");
+            response.sendRedirect("login.jsp?error=error_db");
+        } catch (Exception e) {
+            System.err.println("Error inesperado en LoginServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("login.jsp?error=inesperado");
         }
     }
 }

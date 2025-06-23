@@ -12,17 +12,14 @@
     <title>Login y Registro</title>
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Ionicons para íconos -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-    <!-- Script para toggle -->
     <script src="js/script.js" defer></script>
 </head>
 <body>
     <div class="container">
 
-        <!-- Formulario de Inicio de Sesión -->
         <div class="container-form">
             <form class="sign-in" action="/MarketplaceServicios/LoginServlet" method="post">
                 <h2>Iniciar Sesión</h2>
@@ -44,7 +41,6 @@
             </form>
         </div>
 
-        <!-- Formulario de Registro -->
         <div class="container-form">
             <form class="sign-up" action="/MarketplaceServicios/RegistroServlet" method="post">
                 <h2>Registrarse</h2>
@@ -69,7 +65,6 @@
             </form>
         </div>
 
-        <!-- Panel de Bienvenida -->
         <div class="container-welcome">
             <div class="welcome-sign-up welcome">
                 <h3>¡Bienvenido!</h3>

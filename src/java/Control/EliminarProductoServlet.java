@@ -1,39 +1,54 @@
 package Control;
 
-import jakarta.servlet.*;
+import DAO.ProductoDAO;     
+import DAO.ComentarioDAO;  
+import DAO.PedidoDAO;       
+import DAO.DAOException;    
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.sql.*;
-import Datos.ConexionDB;
 
+@WebServlet("/EliminarProductoServlet")
 public class EliminarProductoServlet extends HttpServlet {
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-        int id = Integer.parseInt(request.getParameter("id"));
+        int idProducto;
+        try {
+            idProducto = Integer.parseInt(request.getParameter("id"));
+        } catch (NumberFormatException e) {
+            response.sendRedirect("dashboard.jsp?error=id_producto_invalido");
+            return;
+        }
 
-        try (Connection conn = ConexionDB.obtenerConexion()) {
+        ComentarioDAO comentarioDAO = new ComentarioDAO();
+        PedidoDAO pedidoDAO = new PedidoDAO();
+        ProductoDAO productoDAO = new ProductoDAO();
 
-            // 1. Eliminar comentarios relacionados (si tienes tabla comentarios con FK a producto_id)
-            PreparedStatement borrarComentarios = conn.prepareStatement("DELETE FROM comentarios WHERE producto_id = ?");
-            borrarComentarios.setInt(1, id);
-            borrarComentarios.executeUpdate();
+        try {
+            comentarioDAO.eliminarComentariosPorProductoId(idProducto);
 
-            // 2. Eliminar detalle_pedido relacionados
-            PreparedStatement borrarDetalles = conn.prepareStatement("DELETE FROM detalle_pedido WHERE producto_id = ?");
-            borrarDetalles.setInt(1, id);
-            borrarDetalles.executeUpdate();
+            pedidoDAO.eliminarDetallesPorProductoId(idProducto);
 
-            // 3. Eliminar el producto
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM productos1 WHERE id = ?");
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+            boolean eliminado = productoDAO.eliminarProducto(idProducto);
 
-            response.sendRedirect("dashboard.jsp?eliminado=1");
+            if (eliminado) {
+                response.sendRedirect("dashboard.jsp?eliminado=exito");
+            } else {
+                response.sendRedirect("dashboard.jsp?error=producto_no_encontrado_eliminar");
+            }
 
-        } catch (Exception e) {
+        } catch (DAOException e) {
+            System.err.println("Error de DB al eliminar producto: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("dashboard.jsp?error=1");
+            response.sendRedirect("dashboard.jsp?error=error_db_eliminar");
+        } catch (Exception e) {
+            System.err.println("Error inesperado en EliminarProductoServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("dashboard.jsp?error=inesperado_eliminar");
         }
     }
 }

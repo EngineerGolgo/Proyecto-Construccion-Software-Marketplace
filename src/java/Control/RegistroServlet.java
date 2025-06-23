@@ -1,36 +1,44 @@
 package Control;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
+import Modelo.Usuario;   
+import DAO.UsuarioDAO;     
+import DAO.UsuarioDAO.DAOException;   
 
-import java.io.*;
-import jakarta.servlet.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import java.sql.*;
-import Datos.ConexionDB;
+import java.io.IOException;
 
+@WebServlet("/RegistroServlet")
 public class RegistroServlet extends HttpServlet {
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        
+            throws ServletException, IOException {
+
         String nombre = request.getParameter("nombre");
         String correo = request.getParameter("correo");
         String contrasena = request.getParameter("contrasena");
 
-        try (Connection conn = ConexionDB.obtenerConexion()) {
-            String sql = "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, nombre);
-            stmt.setString(2, correo);
-            stmt.setString(3, contrasena);
-            stmt.executeUpdate();
+        Usuario nuevoUsuario = new Usuario(nombre, correo, contrasena);
 
-            response.sendRedirect("home.jsp?exito=1");
-        } catch (Exception e) {
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+        try {
+            boolean registrado = usuarioDAO.registrarUsuario(nuevoUsuario);
+
+            if (registrado) {
+                response.sendRedirect("home.jsp"); 
+            } else {
+                response.sendRedirect("home.jsp?error=registro_fallido"); 
+            }
+        } catch (DAOException e) {
+            System.err.println("Error al registrar el usuario desde el Servlet: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("registro.jsp?error=1");
+            response.sendRedirect("home.jsp?error=1");
+        } catch (Exception e) {
+            System.err.println("Error inesperado en RegistroServlet: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("home.jsp?error=inesperado");
         }
     }
 }
