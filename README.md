@@ -28,38 +28,33 @@ Sigue estos pasos para configurar el proyecto localmente:
     ```
 
 2.  **Configura la base de datos MySQL:**
-    * Crea una nueva base de datos llamada `localmarket_db` (o el nombre que prefieras).
-    * Ejecuta el script SQL para crear las tablas y datos iniciales. Este script debería estar en `src/main/resources/database/schema.sql` o una ruta similar dentro del proyecto.
+    * Crea una nueva base de datos llamada `marketplace` (este es el nombre utilizado en el script SQL).
+    * Ejecuta el script SQL `marketplace.sql` (ubicado en la raíz de tu repositorio o en una carpeta `database/` si la creaste) para crear las tablas y datos iniciales.
 
     ```sql
     -- Ejemplo de creación de base de datos y usuario (ajusta según tus necesidades)
-    CREATE DATABASE IF NOT EXISTS localmarket_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    CREATE USER 'localmarket_user'@'localhost' IDENTIFIED BY 'your_password';
-    GRANT ALL PRIVILEGES ON localmarket_db.* TO 'localmarket_user'@'localhost';
+    CREATE DATABASE IF NOT EXISTS marketplace CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CREATE USER 'tu_usuario_db'@'localhost' IDENTIFIED BY 'tu_contraseña_db';
+    GRANT ALL PRIVILEGES ON marketplace.* TO 'tu_usuario_db'@'localhost';
     FLUSH PRIVILEGES;
-    USE localmarket_db;
+    USE marketplace;
 
-    -- Aquí iría el contenido de tu archivo schema.sql para crear tablas
-    -- Por ejemplo:
-    -- CREATE TABLE usuarios (
-    --     id INT AUTO_INCREMENT PRIMARY KEY,
-    --     nombre VARCHAR(255),
-    --     email VARCHAR(255) UNIQUE,
-    --     password VARCHAR(255)
-    -- );
+    -- Aquí deberías ejecutar el contenido de tu archivo marketplace.sql
+    -- Por ejemplo, importándolo directamente con MySQL Workbench o la línea de comandos.
     ```
 
 3.  **Configura el servidor Apache Tomcat:**
     * Abre NetBeans IDE.
     * Importa el proyecto `LocalMarket` como un proyecto web existente.
     * Asegúrate de que Apache Tomcat 9.x esté configurado como el servidor en tu IDE.
-    * Verifica la configuración de la conexión a la base de datos en el código Java (probablemente en un archivo `DBConnection.java` o similar) para que coincida con tus credenciales de MySQL.
+    * Verifica la configuración de la conexión a la base de datos en el código Java (probablemente en `Datos/ConexionDB.java`) para que coincida con tus credenciales de MySQL.
 
     ```java
     // Ejemplo de configuración de conexión en Java (ajusta según tu código)
-    private static final String URL = "jdbc:mysql://localhost:3306/localmarket_db?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "localmarket_user";
-    private static final String PASSWORD = "your_password";
+    // En Datos/ConexionDB.java o similar
+    private static final String URL = "jdbc:mysql://localhost:3306/marketplace?useSSL=false&serverTimezone=UTC";
+    private static final String USER = "tu_usuario_db";
+    private static final String PASSWORD = "tu_contraseña_db";
     ```
 
 4.  **Despliega la aplicación:**
@@ -83,10 +78,10 @@ LocalMarket está dirigido a dos segmentos principales en un contexto local: **v
 
 * Interfaz web receptiva e intuitiva.
 * Navegación por categorías de productos y barra de búsqueda.
-* Sistema de autenticación y gestión de usuarios (registro e inicio de sesión, visualización básica de perfil).
+* Sistema de autenticación y gestión de usuarios (registro e inicio de sesión, visualización básica de perfil, edición de perfil y eliminación de cuenta).
 * Catálogo de productos con filtros dinámicos (imágenes, descripciones, precio).
 * Carrito de compras funcional (añadir/eliminar productos, visualización del total).
-* Publicación de productos por vendedores (formulario simple).
+* Publicación de productos por vendedores (formulario simple, edición y eliminación).
 * Foro de reseñas (publicación por usuarios registrados, lectura pública).
 * Principios de desarrollo seguro y tolerancia a fallos (validaciones en formularios, manejo de excepciones).
 * Documentación del sistema (manual técnico, manual de usuario, documentación de diseño, comentarios en el código).
@@ -101,13 +96,87 @@ LocalMarket está dirigido a dos segmentos principales en un contexto local: **v
 
 ## 🏛️ Arquitectura del Sistema
 
-La arquitectura del sistema se basa en un patrón clásico de tres capas:
+La arquitectura del sistema se basa en un patrón clásico de tres capas, que ha sido refactorizado a un patrón **Modelo-Vista-Controlador (MVC)** para una mejor separación de responsabilidades:
 
-* **Capa de Presentación**: Interfaz del sistema (HTML, CSS, JSP).
-* **Capa de Lógica de Negocio**: Procesamiento de información y reglas de negocio (Servlets Java).
-* **Capa de Datos**: Gestión de comunicación con la base de datos MySQL (JDBC).
+* **Capa de Presentación (Vista)**: Interfaz del sistema (HTML, CSS, JSP). Responsable de mostrar la información al usuario.
+* **Capa de Lógica de Negocio (Controlador)**: Procesamiento de información y reglas de negocio (Servlets Java). Actúa como intermediario entre la Vista y el Modelo, recibiendo las peticiones del usuario y delegando las operaciones.
+* **Capa de Datos (Modelo)**: Gestión de comunicación con la base de datos MySQL (JDBC, con implementación de DAOs - Data Access Objects). Contiene las clases de entidad (POJOs) que representan los datos y las clases DAO que interactúan directamente con la base de datos.
 
-Esta estructura promueve una clara separación de responsabilidades, facilitando el mantenimiento, permitiendo modificar la interfaz sin afectar la lógica interna y mejorando la escalabilidad y seguridad.
+### 🗄️ Base de Datos
+
+La aplicación utiliza una base de datos relacional (`marketplace`) para almacenar y gestionar toda la información de usuarios, productos, pedidos y comentarios. El diseño sigue un esquema que permite modelar las relaciones clave de un sistema de marketplace.
+
+#### 📊 Esquema de la Base de Datos
+
+A continuación, se detalla la estructura de las tablas principales y sus relaciones:
+
+#### 1. `usuarios`
+Representa a los usuarios registrados en el sistema. Un usuario puede actuar tanto como vendedor (publicando productos) como comprador (realizando pedidos).
+
+| Columna | Tipo | Descripción |
+| :---- | :---- | :---------- |
+| `id` | `INT` | Clave primaria, auto-incrementable. |
+| `nombre` | `VARCHAR(100)` | Nombre de usuario. |
+| `correo` | `VARCHAR(100)` | Correo electrónico (único). |
+| `contraseña` | `VARCHAR(100)` | Contraseña del usuario (se recomienda hashing para producción). |
+
+#### 2. `productos1`
+Almacena la información de los productos disponibles en el marketplace, publicados por los usuarios.
+
+| Columna | Tipo | Descripción |
+| :---- | :---- | :---------- |
+| `id` | `INT` | Clave primaria, auto-incrementable. |
+| `nombre` | `VARCHAR(100)` | Nombre del producto. |
+| `descripcion` | `TEXT` | Descripción detallada del producto. |
+| `categoria` | `VARCHAR(50)` | Categoría a la que pertenece el producto. |
+| `precio` | `DECIMAL(10,2)` | Precio del producto. |
+| `imagen` | `VARCHAR(255)` | Ruta de la imagen del producto en el servidor. |
+| `usuario_id` | `INT` | **Clave foránea** a `usuarios.id`. Indica qué usuario publicó el producto. |
+
+#### 3. `comentarios`
+Guarda los comentarios y puntuaciones que los usuarios hacen sobre los productos.
+
+| Columna | Tipo | Descripción |
+| :---- | :---- | :---------- |
+| `id` | `INT` | Clave primaria, auto-incrementable. |
+| `producto_id` | `INT` | **Clave foránea** a `productos1.id`. Producto al que pertenece el comentario. |
+| `usuario_id` | `INT` | **Clave foránea** a `usuarios.id`. Usuario que realizó el comentario. |
+| `comentario` | `TEXT` | Contenido del comentario. |
+| `puntuacion` | `INT` | Puntuación numérica (ej., 1-5 estrellas). |
+| `fecha` | `TIMESTAMP` | Fecha y hora del comentario (con `DEFAULT CURRENT_TIMESTAMP`). |
+
+#### 4. `pedidos`
+Registra los pedidos realizados por los usuarios compradores.
+
+| Columna | Tipo | Descripción |
+| :---- | :---- | :---------- |
+| `id` | `INT` | Clave primaria, auto-incrementable. |
+| `usuario_id` | `INT` | **Clave foránea** a `usuarios.id`. Usuario que realizó el pedido. |
+| `fecha` | `DATETIME` | Fecha y hora de creación del pedido. |
+| `total` | `DECIMAL(10,2)` | Precio total del pedido. |
+
+#### 5. `detalle_pedido`
+Esta es una tabla de unión que resuelve la relación de "Muchos a Muchos" entre `pedidos` y `productos1`. Cada fila representa un producto específico incluido en un pedido.
+
+| Columna | Tipo | Descripción |
+| :---- | :---- | :---------- |
+| `id` | `INT` | Clave primaria, auto-incrementable (o clave compuesta `(pedido_id, producto_id)`). |
+| `pedido_id` | `INT` | **Clave foránea** a `pedidos.id`. Pedido al que pertenece el detalle. |
+| `producto_id` | `INT` | **Clave foránea** a `productos1.id`. Producto incluido en el pedido. |
+
+#### 🔑 Relaciones Clave
+
+* **`usuarios` ➡️ `productos1`**: Un usuario puede publicar muchos productos (relación 1:N a través de `productos1.usuario_id`).
+
+* **`usuarios` ➡️ `pedidos`**: Un usuario puede realizar muchos pedidos (relación 1:N a través de `pedidos.usuario_id`).
+
+* **`productos1` ⬅️ `comentarios`**: Un producto puede tener muchos comentarios (relación N:1 a través de `comentarios.producto_id`).
+
+* **`usuarios` ⬅️ `comentarios`**: Un usuario puede realizar muchos comentarios (relación N:1 a través de `comentarios.usuario_id`).
+
+* **`pedidos` ↔️ `productos1` (vía `detalle_pedido`)**: Una relación de Muchos a Muchos. Un pedido puede contener múltiples productos, y un producto puede estar en múltiples pedidos. `detalle_pedido` vincula estas dos entidades.
+
+Este esquema de base de datos soporta las funcionalidades principales de un marketplace, permitiendo el registro de usuarios, la publicación y búsqueda de productos, la gestión de carritos y la finalización de pedidos, así como la interacción mediante comentarios.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -143,12 +212,12 @@ El proyecto se desarrolla bajo la metodología Scrum, facilitando la entrega ite
 
 ## ⏱️ Cronograma
 
-| Sprint                              | Inicio       | Fin          | Duración  |
+| Sprint | Inicio | Fin | Duración |
 | :---------------------------------- | :----------- | :----------- | :-------- |
-| Sprint 1: Diseño del sistema        | Jun 9, 2025  | Jun 14, 2025 | 6 días    |
-| Sprint 2: Registro y funcionalidades básicas | Jun 15, 2025 | Jun 22, 2025 | 8 días    |
-| Sprint 3: Funcionalidades avanzadas | Jun 23, 2025 | Jul 3, 2025  | 10 días   |
-| Sprint 4: Documentación y entrega final | Jul 4, 2025  | Jul 8, 2025  | 5 días    |
+| Sprint 1: Diseño del sistema | Jun 9, 2025 | Jun 14, 2025 | 6 días |
+| Sprint 2: Registro y funcionalidades básicas | Jun 15, 2025 | Jun 22, 2025 | 8 días |
+| Sprint 3: Funcionalidades avanzadas | Jun 23, 2025 | Jul 3, 2025 | 10 días |
+| Sprint 4: Documentación y entrega final | Jul 4, 2025 | Jul 8, 2025 | 5 días |
 
 ## 🚨 Gestión de Riesgos
 
@@ -188,29 +257,26 @@ Se generará la siguiente documentación:
 
 ## 🧑‍💻 Equipo del Proyecto
 
-| Rol           | Nombre           |
-| :------------ | :--------------- |
+| Rol | Nombre |
+| :---------- | :--------------- |
 | Product Owner | Jeremy Mero Araujo |
-| Scrum Máster  | Anthony Lopez Ochoa |
+| Scrum Máster | Anthony Lopez Ochoa |
 | Desarrollador | Anthony Lopez Ochoa |
 | Desarrollador | Jeremy Mero Araujo |
-| Documentador  | Jeremy Mero Araujo, Anthony Lopez Ochoa |
+| Documentador | Jeremy Mero Araujo, Anthony Lopez Ochoa |
 
 ## 💰 Presupuesto Estimado
 
-| Concepto              | Total Estimado |
+| Concepto | Total Estimado |
 | :-------------------- | :------------- |
-| Costos Operativos     | $128           |
-| Ganancia              | $512           |
+| Costos Operativos | $128 |
+| Ganancia | $512 |
 | **Costo Total del Equipo** | **$3,968** |
-| **Total General** | **$4,608** | ## 📚 Glosario
+| **Total General** | **$4,608** |
+## 📚 Glosario
 
-Consulta el [Glosario](GLOSSARY.md) para conocer las definiciones de los términos técnicos utilizados en este proyecto. *(Opcional: puedes crear un archivo GLOSSARY.md aparte o dejar el glosario completo aquí)*
+Consulta el [Glosario](GLOSSARY.md) para conocer las definiciones de los términos técnicos utilizados en este proyecto. 
 
 ## 🔗 Fuentes Consultadas
 
 * Narea, W. (2020, June 20). Encuesta revela que luego de la pandemia, los consumidores seguirán comprando por internet. *El Universo*.
-
----
-
-¡Gracias por revisar nuestro proyecto LocalMarket! Si tienes alguna pregunta o sugerencia, no dudes en abrir un *issue*.
