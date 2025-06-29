@@ -1,25 +1,19 @@
-package DAO; 
+package DAO;
 
-import Datos.ConexionDB; 
-import Modelo.Producto;  
+import Datos.ConexionDB;
+import Modelo.Producto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.sql.Statement; 
+import java.sql.Statement;
 
-import DAO.DAOException; 
+import DAO.DAOException;
 
 public class ProductoDAO {
 
-    /**
-     * Obtiene un producto de la base de datos por su ID.
-     * @param id El ID del producto a buscar.
-     * @return Un objeto Producto si se encuentra, o null si no existe.
-     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
-     */
     public Producto obtenerPorId(int id) {
         String sql = "SELECT id, nombre, descripcion, categoria, precio, imagen, usuario_id FROM productos1 WHERE id = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
@@ -39,18 +33,13 @@ public class ProductoDAO {
                     rs.getInt("usuario_id")
                 );
             }
-            return null; 
+            return null;
 
         } catch (SQLException e) {
             throw new DAOException("Error al obtener producto por ID: " + id, e);
         }
     }
 
-    /**
-     * Obtiene todos los productos de la base de datos.
-     * @return Una lista de objetos Producto. Puede estar vacía si no hay productos.
-     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
-     */
     public List<Producto> obtenerTodosProductos() {
         List<Producto> productos = new ArrayList<>();
         String sql = "SELECT id, nombre, descripcion, categoria, precio, imagen, usuario_id FROM productos1";
@@ -76,12 +65,6 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Guarda un nuevo producto en la base de datos.
-     * @param producto El objeto Producto a guardar. El ID puede ser 0 si es auto-generado por la DB.
-     * @return true si la inserción fue exitosa, false en caso contrario.
-     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
-     */
     public boolean guardarProducto(Producto producto) {
         String sql = "INSERT INTO productos1 (nombre, descripcion, categoria, precio, imagen, usuario_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConexionDB.obtenerConexion();
@@ -99,7 +82,7 @@ public class ProductoDAO {
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        producto.setId(generatedKeys.getInt(1)); 
+                        producto.setId(generatedKeys.getInt(1));
                     }
                 }
                 return true;
@@ -111,12 +94,6 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Elimina un producto de la base de datos por su ID.
-     * @param id El ID del producto a eliminar.
-     * @return true si la eliminación fue exitosa, false en caso contrario.
-     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
-     */
     public boolean eliminarProducto(int id) {
         String sql = "DELETE FROM productos1 WHERE id = ?";
         try (Connection conn = ConexionDB.obtenerConexion();
@@ -131,13 +108,6 @@ public class ProductoDAO {
         }
     }
 
-    /**
-     * Actualiza un producto existente en la base de datos.
-     * Permite actualizar también la imagen si se proporciona una nueva.
-     * @param producto El objeto Producto con los datos actualizados. El ID debe ser válido.
-     * @return true si la actualización fue exitosa, false en caso contrario.
-     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
-     */
     public boolean actualizarProducto(Producto producto) {
         String sql;
         int paramIndex = 1;
@@ -160,13 +130,56 @@ public class ProductoDAO {
                 stmt.setString(paramIndex++, producto.getImagen());
             }
 
-            stmt.setInt(paramIndex, producto.getId()); 
+            stmt.setInt(paramIndex, producto.getId());
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
             throw new DAOException("Error al actualizar el producto con ID: " + producto.getId(), e);
+        }
+    }
+
+    /**
+     * Obtiene una lista de IDs de productos publicados por un usuario específico.
+     * @param usuarioId El ID del usuario.
+     * @return Una lista de IDs de productos.
+     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
+     */
+    public List<Integer> obtenerIdsProductosPorUsuario(int usuarioId) {
+        List<Integer> productoIds = new ArrayList<>();
+        String sql = "SELECT id FROM productos1 WHERE usuario_id = ?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, usuarioId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                productoIds.add(rs.getInt("id"));
+            }
+            return productoIds;
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al obtener IDs de productos para el usuario ID: " + usuarioId, e);
+        }
+    }
+
+    /**
+     * Elimina todos los productos publicados por un usuario específico.
+     * @param usuarioId El ID del usuario cuyos productos se desean eliminar.
+     * @throws DAOException si ocurre un error durante el acceso a la base de datos.
+     */
+    public void eliminarProductosPorUsuarioId(int usuarioId) {
+        String sql = "DELETE FROM productos1 WHERE usuario_id = ?";
+        try (Connection conn = ConexionDB.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, usuarioId);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DAOException("Error al eliminar productos del usuario ID: " + usuarioId, e);
         }
     }
 }
