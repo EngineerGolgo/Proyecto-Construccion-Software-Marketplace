@@ -4,10 +4,14 @@
     Author     : User
 --%>
 
-<%@ page import="jakarta.servlet.http.*,jakarta.servlet.*,java.sql.*" %>
+<%@ page import="jakarta.servlet.http.*, jakarta.servlet.*, java.io.*, java.sql.*" %>
 <%@ page import="Datos.ConexionDB" %>
-<%@ page import="java.net.URLEncoder" %> 
-<%@ page import="java.util.List" %> 
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.util.List" %>
+<%@ page import="Modelo.Usuario" %>
+<%@ page import="DAO.UsuarioDAO" %>
+<%@ page import="DAO.ProductoDAO" %> <%-- Necesario para el carrito --%>
+<%@ page import="DAO.DAOException" %>
 
 <%
     HttpSession sesion = request.getSession(false);
@@ -18,20 +22,28 @@
         return;
     }
 
-    String correo = "";
-    try (Connection conn = ConexionDB.obtenerConexion()) {
-        String sql = "SELECT correo FROM usuarios WHERE nombre = ?";
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setString(1, nombreUsuario);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            correo = rs.getString("correo");
+    Usuario usuarioActual = null;
+    UsuarioDAO usuarioDAO = new UsuarioDAO();
+
+    try {
+        usuarioActual = usuarioDAO.obtenerPorNombre(nombreUsuario);
+        if (usuarioActual == null) {
+            response.sendRedirect("login.jsp?error=perfil_no_encontrado");
+            return;
         }
-    } catch (Exception e) {
+    } catch (DAOException e) {
+        System.err.println("Error de DB al cargar perfil: " + e.getMessage());
         e.printStackTrace();
+        response.sendRedirect("dashboard.jsp?error=error_db_perfil_carga");
+        return;
+    } catch (Exception e) {
+        System.err.println("Error inesperado al cargar perfil: " + e.getMessage());
+        e.printStackTrace();
+        response.sendRedirect("dashboard.jsp?error=inesperado_perfil_carga");
+        return;
     }
 
-    String searchTerm = ""; 
+    String searchTerm = "";
 %>
 
 <!DOCTYPE html>
@@ -48,16 +60,34 @@
             const panel = document.getElementById('carrito-panel');
             panel.classList.toggle('mostrar');
         }
+
+        function toggleEditForm() {
+            const displayDiv = document.getElementById('display-info');
+            const editForm = document.getElementById('edit-form');
+            if (displayDiv.style.display === 'none') {
+                displayDiv.style.display = 'block';
+                editForm.style.display = 'none';
+            } else {
+                displayDiv.style.display = 'none';
+                editForm.style.display = 'block';
+            }
+        }
+
+        function confirmarEliminarUsuario() {
+            // Utiliza un modal personalizado si tienes uno, en lugar de confirm()
+            return confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará todos tus productos, pedidos y comentarios.");
+        }
     </script>
 
     <style>
+        /* Mantén tus estilos existentes */
         main.content {
             padding: 30px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             max-width: 800px;
-            margin: 0 auto; 
+            margin: 0 auto;
         }
 
         main.content h1 {
@@ -66,7 +96,7 @@
             font-size: 2em;
             border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
-            display: inline-block; 
+            display: inline-block;
         }
 
         main.content p {
@@ -80,24 +110,104 @@
             margin-right: 5px;
         }
 
-        main.content .profile-actions {
+        .profile-actions {
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
         }
 
-        main.content .profile-actions a {
+        .profile-actions a, .profile-actions button, .profile-actions form button { /* Añadido form button */
             display: inline-block;
             padding: 10px 20px;
             background-color: #007bff;
             color: white;
             text-decoration: none;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .profile-actions a:hover, .profile-actions button:hover, .profile-actions form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo específico para el botón de eliminar */
+        .profile-actions form.delete-form button {
+            background-color: #dc3545; /* Rojo para eliminar */
+        }
+        .profile-actions form.delete-form button:hover {
+            background-color: #c82333;
+        }
+
+
+        /* Estilos para el formulario de edición */
+        #edit-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        #edit-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #edit-form input[type="text"],
+        #edit-form input[type="email"],
+        #edit-form input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        #edit-form button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        main.content .profile-actions a:hover {
-            background-color: #0056b3;
+        #edit-form button[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        #edit-form button[type="button"] {
+            background-color: #dc3545;
+        }
+
+        #edit-form button[type="button"]:hover {
+            background-color: #c82333;
+        }
+
+        /* Mensajes de éxito/error */
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
@@ -109,29 +219,36 @@
         <h2>Mi Carrito</h2>
         <ul>
             <%
-                List<Integer> carrito = (List<Integer>) session.getAttribute("carrito");
-                if (carrito != null && !carrito.isEmpty()) {
-                    try (Connection conn = ConexionDB.obtenerConexion()) {
-                        for (int i = 0; i < carrito.size(); i++) {
-                            int idProducto = carrito.get(i);
-                            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos1 WHERE id = ?");
-                            stmt.setInt(1, idProducto);
-                            ResultSet rs = stmt.executeQuery();
-                            if (rs.next()) {
+                List<Integer> carritoIds = (List<Integer>) sesion.getAttribute("carrito");
+                List<Modelo.Producto> productosEnCarrito = new java.util.ArrayList<>();
+                DAO.ProductoDAO productoDAO = new DAO.ProductoDAO(); // Instancia aquí
+
+                if (carritoIds != null && !carritoIds.isEmpty()) {
+                    try {
+                        for (Integer id : carritoIds) {
+                            Modelo.Producto producto = productoDAO.obtenerPorId(id);
+                            if (producto != null) {
+                                productosEnCarrito.add(producto);
+                            }
+                        }
+                    } catch (DAOException e) {
+                        System.err.println("Error al cargar productos del carrito en el perfil: " + e.getMessage());
+                        out.println("<li>Error al cargar productos del carrito.</li>");
+                    }
+                }
+
+                if (productosEnCarrito != null && !productosEnCarrito.isEmpty()) {
+                    for (int i = 0; i < productosEnCarrito.size(); i++) {
+                        Modelo.Producto prod = productosEnCarrito.get(i);
             %>
                 <li>
-                    <strong><%= rs.getString("nombre") %></strong> - $<%= rs.getDouble("precio") %>
+                    <strong><%= prod.getNombre() %></strong> - $<%= prod.getPrecio() %>
                     <form action="EliminarDelCarritoServlet" method="post" style="display:inline;">
                         <input type="hidden" name="index" value="<%= i %>">
                         <button type="submit">Eliminar</button>
                     </form>
                 </li>
             <%
-                            }
-                        }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        out.println("<li>Error al cargar productos del carrito.</li>");
                     }
                 } else {
             %>
@@ -140,7 +257,7 @@
                 }
             %>
         </ul>
-        <% if (carrito != null && !carrito.isEmpty()) { %>
+        <% if (carritoIds != null && !carritoIds.isEmpty()) { %>
             <form action="FinalizarPedidoServlet" method="post">
                 <button type="submit" class="btn btn-success">Finalizar Pedido</button>
             </form>
@@ -153,12 +270,14 @@
     
     <header class="header">
         <div class="logo">
-            Marketplace <span class="saludo">¡Hola, <%= nombreUsuario %>!</span>
+            Marketplace <span class="saludo">¡Hola, <%= usuarioActual.getNombre() %>!</span>
         </div>
         <nav class="navbar">
             <a href="dashboard.jsp">Inicio</a>
             <a href="misProductos.jsp">Mis Productos</a>
             <a href="perfil.jsp">Perfil</a>
+            <a href="foro.jsp">Publicar Mensaje</a>
+            <a href="mensajes.jsp">Mensajes</a>
             <a href="logout.jsp">Cerrar Sesión</a>
         </nav>
     </header>
@@ -176,12 +295,50 @@
 
         <main class="content">
             <h1>Perfil del Usuario</h1>
-            <p><strong>Nombre:</strong> <%= nombreUsuario %></p>
-            <p><strong>Correo:</strong> <%= correo %></p>
+
+            <%-- Mensajes de éxito/error --%>
+            <%
+                String exito = request.getParameter("exito");
+                String error = request.getParameter("error");
+                if ("perfil_actualizado".equals(exito)) {
+                    out.println("<p class='message success'>¡Perfil actualizado con éxito!</p>");
+                } else if ("eliminado_exito".equals(request.getParameter("eliminado"))) { // Nuevo mensaje de eliminado
+                     out.println("<p class='message success'>¡Tu cuenta ha sido eliminada con éxito!</p>");
+                } else if (error != null) {
+                    out.println("<p class='message error'>Error: " + error.replace("_", " ") + "</p>");
+                }
+            %>
+
+            <div id="display-info">
+                <p><strong>Nombre:</strong> <%= usuarioActual.getNombre() %></p>
+                <p><strong>Correo:</strong> <%= usuarioActual.getCorreo() %></p>
+            </div>
+
+            <div id="edit-form" style="display:none;">
+                <h2>Editar Perfil</h2>
+                <form action="EditarPerfilServlet" method="post">
+                    <label for="nombre">Nombre de Usuario:</label>
+                    <input type="text" id="nombre" name="nombre" value="<%= usuarioActual.getNombre() %>" required><br>
+
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" value="<%= usuarioActual.getCorreo() %>" required><br>
+
+                    <label for="contrasena">Nueva Contraseña (dejar en blanco para no cambiar):</label>
+                    <input type="password" id="contrasena" name="contrasena" placeholder="********" value="<%= usuarioActual.getContrasena() %>"><br>
+                    
+                    <button type="submit">Guardar Cambios</button>
+                    <button type="button" onclick="toggleEditForm()">Cancelar</button>
+                </form>
+            </div>
 
             <div class="profile-actions">
+                <button type="button" onclick="toggleEditForm()">Editar Perfil</button>
                 <a href="dashboard.jsp">Volver al Dashboard</a>
-                </div>
+                
+                <form action="EliminarUsuarioServlet" method="post" style="display:inline;" onsubmit="return confirmarEliminarUsuario();" class="delete-form">
+                    <button type="submit">Eliminar Cuenta</button>
+                </form>
+            </div>
         </main>
     </div>
 
