@@ -135,7 +135,7 @@
 </div>
 
 <footer class="footer">
-    &copy; 2025 Lopez Ochoa. Todos los derechos reservados a Anthony Lopez.
+    &copy; 2025 LocalMarket. Todos los derechos reservados a Anthony Lopez.
 </footer>
 
 </body>
