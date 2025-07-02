@@ -74,13 +74,12 @@
         }
 
         function confirmarEliminarUsuario() {
-            // Utiliza un modal personalizado si tienes uno, en lugar de confirm()
+
             return confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y borrará todos tus productos, pedidos y comentarios.");
         }
     </script>
 
     <style>
-        /* Mantén tus estilos existentes */
         main.content {
             padding: 30px;
             background-color: #fff;
@@ -133,16 +132,13 @@
             background-color: #0056b3;
         }
 
-        /* Estilo específico para el botón de eliminar */
         .profile-actions form.delete-form button {
-            background-color: #dc3545; /* Rojo para eliminar */
+            background-color: #dc3545; 
         }
         .profile-actions form.delete-form button:hover {
             background-color: #c82333;
         }
 
-
-        /* Estilos para el formulario de edición */
         #edit-form {
             display: none;
             margin-top: 20px;
@@ -192,7 +188,6 @@
             background-color: #c82333;
         }
 
-        /* Mensajes de éxito/error */
         .message {
             padding: 10px;
             margin-bottom: 15px;
@@ -276,8 +271,6 @@
             <a href="dashboard.jsp">Inicio</a>
             <a href="misProductos.jsp">Mis Productos</a>
             <a href="perfil.jsp">Perfil</a>
-            <a href="foro.jsp">Publicar Mensaje</a>
-            <a href="mensajes.jsp">Mensajes</a>
             <a href="logout.jsp">Cerrar Sesión</a>
         </nav>
     </header>
@@ -296,7 +289,6 @@
         <main class="content">
             <h1>Perfil del Usuario</h1>
 
-            <%-- Mensajes de éxito/error --%>
             <%
                 String exito = request.getParameter("exito");
                 String error = request.getParameter("error");
@@ -343,7 +335,7 @@
     </div>
 
     <footer class="footer">
-        &copy; 2025 Free Fire. Todos los derechos reservados a Anthony Lopez.
+        &copy; 2025 LocalMarket. Todos los derechos reservados a Anthony Lopez.
     </footer>
 
 </body>

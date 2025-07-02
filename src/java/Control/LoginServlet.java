@@ -13,8 +13,10 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+
         String correo = request.getParameter("correo");
         String contrasena = request.getParameter("contrasena");
+
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
 
@@ -24,7 +26,7 @@ public class LoginServlet extends HttpServlet {
             if (usuario != null) {
                 HttpSession session = request.getSession();
                 session.setAttribute("nombreUsuario", usuario.getNombre()); 
-                response.sendRedirect("dashboard.jsp");
+                response.sendRedirect("dashboard.jsp?showWelcomeAnimation=true"); 
             } else {
                 response.sendRedirect("login.jsp?error=credenciales_invalidas");
             }

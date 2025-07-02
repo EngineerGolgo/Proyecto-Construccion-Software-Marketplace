@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package DAO; // Ubícala en tu paquete 'DAO'
+package DAO; 
 
 /**
  * Excepción personalizada para la capa de Acceso a Datos (DAO).
