@@ -40,9 +40,6 @@ CREATE TABLE `comentarios` (
 -- Volcado de datos para la tabla `comentarios`
 --
 
-INSERT INTO `comentarios` (`id`, `producto_id`, `usuario_id`, `comentario`, `puntuacion`, `fecha`) VALUES
-(16, 20, 1, 'hola', 4, '2025-06-23 03:31:28'),
-(17, 20, 3, 'Dick ', 3, '2025-06-23 03:33:33');
 
 -- --------------------------------------------------------
 
@@ -60,14 +57,6 @@ CREATE TABLE `detalle_pedido` (
 -- Volcado de datos para la tabla `detalle_pedido`
 --
 
-INSERT INTO `detalle_pedido` (`id`, `pedido_id`, `producto_id`) VALUES
-(3, 2, 20),
-(4, 3, 20),
-(5, 4, 20),
-(7, 5, 20),
-(8, 6, 20),
-(9, 6, 20),
-(10, 6, 20);
 
 -- --------------------------------------------------------
 
@@ -86,13 +75,6 @@ CREATE TABLE `pedidos` (
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id`, `usuario_id`, `fecha`, `total`) VALUES
-(1, 1, '2025-06-22 01:09:29', 246.00),
-(2, 1, '2025-06-22 22:41:13', 123.00),
-(3, 1, '2025-06-22 22:52:37', 123.00),
-(4, 1, '2025-06-23 08:39:22', 123.00),
-(5, 1, '2025-06-23 08:52:45', 246.00),
-(6, 1, '2025-06-23 09:15:10', 1368.00);
 
 -- --------------------------------------------------------
 
@@ -114,8 +96,6 @@ CREATE TABLE `productos1` (
 -- Volcado de datos para la tabla `productos1`
 --
 
-INSERT INTO `productos1` (`id`, `nombre`, `descripcion`, `categoria`, `precio`, `imagen`, `usuario_id`) VALUES
-(20, 'pruebaedicion', 'pruebaedicion', 'Moda', 456.00, 'imagenes\\1750687681525_243.png', 1);
 
 -- --------------------------------------------------------
 
@@ -133,11 +113,6 @@ CREATE TABLE `usuarios` (
 --
 -- Volcado de datos para la tabla `usuarios`
 --
-
-INSERT INTO `usuarios` (`id`, `nombre`, `correo`, `contraseña`) VALUES
-(1, 'EngineerGolgo1', 'tonydaniel2004@gmail.com', '13071999realg4life'),
-(3, 'jeremysito', 'jeremy32@gmail.com', 'sexo123'),
-(4, 'eddylopez', 'eddylopez13@gmail.com', 'realg4life');
 
 --
 -- Índices para tablas volcadas
