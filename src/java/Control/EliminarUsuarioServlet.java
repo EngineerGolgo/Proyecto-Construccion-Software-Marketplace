@@ -16,6 +16,14 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+/**
+ * Servlet para permitir a un usuario autenticado eliminar su propia cuenta.
+ * Si la eliminación es exitosa, invalida la sesión y redirige al inicio.
+ *
+ * @author Jeremy Mero
+ * @version 2.0.0
+ * @since 2025-06-17
+ */
 @WebServlet("/EliminarUsuarioServlet")
 public class EliminarUsuarioServlet extends HttpServlet {
 

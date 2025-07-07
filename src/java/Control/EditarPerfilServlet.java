@@ -5,21 +5,39 @@
 package Control;
 
 import Modelo.Usuario;
-import DAO.UsuarioDAO;    
-import DAO.DAOException; 
+import DAO.UsuarioDAO;
+import DAO.DAOException;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
+/**
+ * Servlet para permitir a los usuarios autenticados editar su información de perfil.
+ *
+ * @author Jeremy Mero
+ * @version 1.0
+ * @since 2025-06-15
+ */
 @WebServlet("/EditarPerfilServlet")
 public class EditarPerfilServlet extends HttpServlet {
+
+    /**
+     * Procesa la solicitud POST para actualizar los datos del perfil de un usuario.
+     * Valida la sesión, obtiene los nuevos datos del formulario y actualiza el usuario en la base de datos.
+     * Si el nombre de usuario cambia, actualiza la sesión.
+     *
+     * @param request El objeto HttpServletRequest que contiene la solicitud del cliente.
+     * @param response El objeto HttpServletResponse que contiene la respuesta que el servlet envía al cliente.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de entrada o salida al procesar la solicitud.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8"); 
+        request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("nombreUsuario") == null) {
@@ -31,7 +49,7 @@ public class EditarPerfilServlet extends HttpServlet {
 
         String nuevoNombre = request.getParameter("nombre");
         String nuevoCorreo = request.getParameter("correo");
-        String nuevaContrasena = request.getParameter("contrasena"); 
+        String nuevaContrasena = request.getParameter("contrasena");
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
 
@@ -47,7 +65,7 @@ public class EditarPerfilServlet extends HttpServlet {
                 usuarioExistente.getId(),
                 nuevoNombre,
                 nuevoCorreo,
-                nuevaContrasena 
+                nuevaContrasena
             );
 
             boolean actualizado = usuarioDAO.actualizarUsuario(usuarioAActualizar);

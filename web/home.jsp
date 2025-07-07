@@ -36,7 +36,6 @@
                     <ion-icon name="lock-closed-outline"></ion-icon>
                     <input type="password" name="contrasena" placeholder="Contraseña" required>
                 </div>
-                <a href="#">¿Olvidaste tu contraseña?</a>
                 <button class="buttom" type="submit">Iniciar Sesión</button>
             </form>
         </div>

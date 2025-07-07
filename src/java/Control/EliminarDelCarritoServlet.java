@@ -10,9 +10,27 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List; 
 
+
+/**
+ * Servlet para eliminar un producto del carrito de compras basado en su índice.
+ *
+ * @author Anthony Lopez
+ * @version 2.0.0
+ * @since 2025-06-27
+ */
 @WebServlet("/EliminarDelCarritoServlet")
 public class EliminarDelCarritoServlet extends HttpServlet {
 
+    
+    /**
+     * Procesa la solicitud POST para eliminar un producto del carrito.
+     * Valida la sesión del usuario y el índice del producto a eliminar de la lista del carrito almacenada en la sesión.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

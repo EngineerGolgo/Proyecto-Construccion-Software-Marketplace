@@ -1,8 +1,8 @@
 package Control;
 
-import Modelo.Producto;  
-import DAO.ProductoDAO;  
-import DAO.DAOException; 
+import Modelo.Producto;
+import DAO.ProductoDAO;
+import DAO.DAOException;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -10,18 +10,36 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.sql.SQLException; 
 
+/**
+ * Servlet para editar la información de un producto existente, incluyendo la subida de una nueva imagen.
+ *
+ * @author Jeremy Mero
+ * @version 2.0.0
+ * @since 2025-06-19
+ */
 @WebServlet("/EditarProductoServlet")
-@MultipartConfig(fileSizeThreshold=1024*1024,   
-                 maxFileSize=1024*1024*5,       
-                 maxRequestSize=1024*1024*10)   
+@MultipartConfig(fileSizeThreshold=1024*1024,
+                 maxFileSize=1024*1024*5,
+                 maxRequestSize=1024*1024*10)
 public class EditarProductoServlet extends HttpServlet {
+
+    /**
+     * Procesa la solicitud POST para actualizar un producto.
+     * Recoge los datos del formulario, maneja la subida de una nueva imagen (si se proporciona),
+     * y actualiza el producto en la base de datos.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8"); 
+        request.setCharacterEncoding("UTF-8");
 
         int idProducto;
         try {
@@ -41,7 +59,7 @@ public class EditarProductoServlet extends HttpServlet {
             response.sendRedirect("dashboard.jsp?error=precio_invalido_editar");
             return;
         }
-        
+
         String nuevaRutaImagen = null;
 
         try {
@@ -60,9 +78,9 @@ public class EditarProductoServlet extends HttpServlet {
                 if (!directorio.exists()) {
                     directorio.mkdirs();
                 }
-                
+
                 imagenPart.write(rutaGuardadoAbsoluta + File.separator + nombreUnicoArchivo);
-                nuevaRutaImagen = "imagenes" + File.separator + nombreUnicoArchivo; 
+                nuevaRutaImagen = "imagenes" + File.separator + nombreUnicoArchivo;
             }
         } catch (IOException | ServletException e) {
             System.err.println("Error al procesar la subida de la imagen: " + e.getMessage());
@@ -82,7 +100,7 @@ public class EditarProductoServlet extends HttpServlet {
         productoAActualizar.setDescripcion(descripcion);
         productoAActualizar.setCategoria(categoria);
         productoAActualizar.setPrecio(precio);
-        productoAActualizar.setImagen(nuevaRutaImagen); 
+        productoAActualizar.setImagen(nuevaRutaImagen);
 
         ProductoDAO productoDAO = new ProductoDAO();
         try {

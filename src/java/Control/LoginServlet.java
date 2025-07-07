@@ -8,7 +8,26 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
+/**
+ * Servlet para manejar el inicio de sesión de usuarios.
+ * Procesa las credenciales enviadas, autentica al usuario y, si son válidas,
+ * establece la sesión y redirige al dashboard.
+ *
+ * @author Anthony Lopez
+ * @version 1.0
+ * @since 2025-07-06
+ */
 public class LoginServlet extends HttpServlet {
+    /**
+     * Procesa la solicitud POST para autenticar a un usuario.
+     * Recibe el correo y la contraseña, los valida contra la base de datos
+     * y gestiona la sesión del usuario.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

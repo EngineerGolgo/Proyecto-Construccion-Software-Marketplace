@@ -1,18 +1,36 @@
 package Control;
 
-import Modelo.Comentario;    
-import Modelo.Usuario;      
-import DAO.ComentarioDAO;    
-import DAO.UsuarioDAO;       
-import DAO.DAOException;     
+import Modelo.Comentario;
+import Modelo.Usuario;
+import DAO.ComentarioDAO;
+import DAO.UsuarioDAO;
+import DAO.DAOException;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
+/**
+ * Servlet para permitir a los usuarios logueados añadir comentarios y puntuaciones a productos.
+ *
+ * @author Anthony Lopez
+ * @version 2.0.0
+ * @since 2025-07-03
+ */
 @WebServlet("/AgregarComentarioServlet")
 public class AgregarComentarioServlet extends HttpServlet {
+
+    /**
+     * Procesa la solicitud POST para agregar un comentario.
+     * Valida la sesión, obtiene datos del comentario y usuario,
+     * y persiste el comentario en la base de datos.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -20,7 +38,7 @@ public class AgregarComentarioServlet extends HttpServlet {
         HttpSession sesion = request.getSession(false);
 
         if (sesion == null || sesion.getAttribute("nombreUsuario") == null) {
-            response.sendRedirect("login.jsp"); 
+            response.sendRedirect("login.jsp");
             return;
         }
 
@@ -37,7 +55,7 @@ public class AgregarComentarioServlet extends HttpServlet {
             return;
         }
 
-        String comentarioTexto = request.getParameter("comentario"); 
+        String comentarioTexto = request.getParameter("comentario");
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         ComentarioDAO comentarioDAO = new ComentarioDAO();

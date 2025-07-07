@@ -15,12 +15,31 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException; 
 
+
+/**
+ * Servlet para permitir a los usuarios publicar nuevos productos.
+ * Maneja la subida de imágenes y el almacenamiento de los datos del producto en la base de datos.
+ *
+ * @author Anthony Lopez
+ * @version 2.0.0
+ * @since 2025-06-20
+ */
 @WebServlet("/PublicarProductoServlet")
 @MultipartConfig(fileSizeThreshold=1024*1024,   
                  maxFileSize=1024*1024*5,       
                  maxRequestSize=1024*1024*10)   
 public class PublicarProductoServlet extends HttpServlet {
 
+    /**
+     * Procesa la solicitud POST para publicar un nuevo producto.
+     * Recoge los datos del formulario, guarda la imagen en el servidor
+     * y persiste la información del producto en la base de datos.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

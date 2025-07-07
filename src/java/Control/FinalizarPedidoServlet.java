@@ -16,8 +16,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Servlet para finalizar el proceso de un pedido, creando un nuevo pedido
+ * y sus detalles a partir de los productos en el carrito de la sesión.
+ *
+ * @author Anthony Lopez
+ * @version 2.0.0
+ * @since 2025-06-24
+ */
 @WebServlet("/FinalizarPedidoServlet")
 public class FinalizarPedidoServlet extends HttpServlet {
+    /**
+     * Procesa la solicitud POST para completar un pedido.
+     * Recupera los productos del carrito de la sesión, calcula el total,
+     * guarda el pedido y sus detalles en la base de datos, y vacía el carrito.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

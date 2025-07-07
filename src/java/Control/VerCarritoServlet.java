@@ -11,8 +11,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servlet para visualizar los productos actualmente en el carrito de compras de la sesión.
+ * Obtiene los IDs de los productos del carrito y recupera sus detalles completos de la base de datos.
+ *
+ * @author Anthony Lopez
+ * @version 2.0.0
+ * @since 2025-07-27
+ */
 @WebServlet("/verCarrito")
 public class VerCarritoServlet extends HttpServlet {
+    /**
+     * Procesa la solicitud GET para mostrar el contenido del carrito.
+     * Recupera la lista de IDs de productos del carrito de la sesión, busca los detalles
+     * de cada producto en la base de datos y los envía a la página JSP para su visualización.
+     *
+     * @param request El objeto HttpServletRequest.
+     * @param response El objeto HttpServletResponse.
+     * @throws ServletException Si ocurre un error específico del servlet.
+     * @throws IOException Si ocurre un error de E/S.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
